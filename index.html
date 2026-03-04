@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSC 353 HW2 Reports</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="container py-5">
+      <div class="paper p-4 p-md-5 sketch-card mx-auto" style="max-width: 820px;">
+        <div class="text-center mb-4">
+          <h1 class="display-5 mb-2">CSC 353 HW2</h1>
+          <h5 class="small-muted mb-2">By Julia Holt and Tanaka Makoni</h5>
+          <p class="small-muted mb-0">
+            Pick a deliverable and open results.
+          </p>
+        </div>
+
+        <form id="launcherForm" class="mx-auto" style="max-width: 640px;">
+          <div class="row g-3 align-items-end">
+
+            <div class="col-12">
+              <label class="form-label mb-1">Report</label>
+              <select id="reportSelect" class="form-select sketch-select">
+                <option value="deliverable1.html" selected>Deliverable 1</option>
+                <option value="deliverable2.html">Deliverable 2</option>
+                <option value="deliverable3.html">Deliverable 3</option>
+                <option value="deliverable4.html">Deliverable 4</option>
+                <option value="deliverable5.html">Deliverable 5</option>
+                <option value="deliverable6.html">Deliverable 6</option>
+              </select>
+              
+            </div>
+
+            <div class="col-12 text-center">
+              <button type="submit" class="btn btn-dark sketch-btn mt-3">
+                Enter
+              </button>
+            </div>
+
+          </div>
+        </form>
+
+        <hr class="my-4" />
+      </div>
+    </div>
+
+    <script type="module">
+      const form = document.getElementById("launcherForm");
+      const reportSelect = document.getElementById("reportSelect");
+      const searchInput = document.getElementById("searchInput");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const target = reportSelect.value;
+        const q = searchInput ? searchInput.value.trim() : "";
+
+        const url = q ? `${target}?q=${encodeURIComponent(q)}` : target;
+        window.location.href = url;
+      });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+  </body>
+</html>

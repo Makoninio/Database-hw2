@@ -1,0 +1,36 @@
+:root {
+  --paper: #fbf7ef;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --border: #111827;
+}
+
+body {
+  font-family: sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.paper {
+  background:
+    linear-gradient(transparent 31px, rgba(17, 24, 39, 0.06) 32px),
+    linear-gradient(90deg, transparent 31px, rgba(17, 24, 39, 0.04) 32px);
+  background-size: 32px 32px;
+  border-radius: 18px;
+}
+
+.sketch-card {
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 rgba(17, 24, 39, 0.25);
+}
+
+.sketch-select {
+  border: 2px solid var(--border) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+
+.small-muted {
+  color: var(--muted);
+}
