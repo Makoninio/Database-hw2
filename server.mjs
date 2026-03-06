@@ -6,7 +6,6 @@ const app = express();
 const PORT = Number(process.env.PORT || 8080);
 
 app.use(express.static("."));
-app.use(express.urlencoded({ extended: false }));
 
 // Connect once on startup, but keep the web server alive even if DB is unavailable.
 db.connect().catch((err) => {
@@ -37,9 +36,8 @@ app.get("/api", async (req, res) => {
   }
 });
 
-// Clean shutdown
+// Shutdown
 process.on("SIGINT", () => {
-  db.disconnect?.();
   process.exit(0);
 });
 

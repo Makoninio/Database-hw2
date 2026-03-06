@@ -106,6 +106,89 @@ const REPORT_SQL = {
       AND y.vote <> 'A'
     GROUP BY y.sen_id
     ORDER BY y.sen_id;
+  `,
+  deliverable6: `
+    SELECT
+        *,
+        (agreements - disagreements) / (agreements + disagreements) AS agreement_index
+    FROM (
+        SELECT
+            firstname,
+            lastname,
+            's247' AS senator_p,
+            party,
+            COALESCE(number_of_disagreements, 0) AS disagreements
+        FROM (
+            SELECT
+                firstname,
+                lastname,
+                id AS other_senator,
+                's247' AS senator_p,
+                party
+            FROM senator
+        ) AS s
+        NATURAL LEFT OUTER JOIN (
+            SELECT
+                y.sen_id AS other_senator,
+                p.sen_id AS senator_p,
+                COUNT(*) AS number_of_disagreements
+            FROM (
+                SELECT vote, sen_id, congress, session, number
+                FROM voted
+                WHERE voted.sen_id = 'S247'
+            ) AS p
+            JOIN (
+                SELECT vote, sen_id, congress, session, number
+                FROM voted
+            ) AS y
+              ON p.congress = y.congress
+             AND p.session = y.session
+             AND p.number = y.number
+            WHERE p.vote != y.vote
+              AND p.vote != 'A'
+              AND y.vote != 'A'
+            GROUP BY y.sen_id
+            ORDER BY y.sen_id
+        ) AS d
+    ) AS dis
+    NATURAL JOIN (
+        SELECT
+            firstname,
+            lastname,
+            's247' AS senator_p,
+            COALESCE(number_of_agreements, 0) AS agreements
+        FROM (
+            SELECT
+                firstname,
+                lastname,
+                id AS other_senator,
+                's247' AS senator_p
+            FROM senator
+        ) AS s
+        NATURAL LEFT OUTER JOIN (
+            SELECT
+                y.sen_id AS other_senator,
+                p.sen_id AS senator_p,
+                COUNT(*) AS number_of_agreements
+            FROM (
+                SELECT vote, sen_id, congress, session, number
+                FROM voted
+                WHERE voted.sen_id = 'S247'
+            ) AS p
+            JOIN (
+                SELECT vote, sen_id, congress, session, number
+                FROM voted
+            ) AS y
+              ON p.congress = y.congress
+             AND p.session = y.session
+             AND p.number = y.number
+            WHERE p.vote = y.vote
+              AND p.vote != 'A'
+              AND y.vote != 'A'
+            GROUP BY y.sen_id
+            ORDER BY y.sen_id
+        ) AS a
+    ) AS agr;
   `
 };
 
@@ -113,24 +196,12 @@ function listReports() {
   return Object.keys(REPORT_SQL);
 }
 
-async function query(sql, params = []) {
-  const [rows] = await promiseConnection.query(sql, params);
-  return rows;
-}
-
 async function queryReport(reportName) {
   if (!(reportName in REPORT_SQL)) {
     throw new Error(`Invalid report: ${reportName}`);
   }
-  return query(REPORT_SQL[reportName]);
+  const [rows] = await promiseConnection.query(REPORT_SQL[reportName]);
+  return rows;
 }
 
-async function ping() {
-  await promiseConnection.query("SELECT 1");
-}
-
-async function closeConnection() {
-  await promiseConnection.end();
-}
-
-export { connection, connect, query, queryReport, listReports, ping, closeConnection };
+export { connect, queryReport, listReports };
