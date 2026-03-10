@@ -3,7 +3,7 @@ import "dotenv/config";
 import * as db from "./db.mjs";
 
 const app = express();
-const PORT = Number(process.env.PORT || 8080);
+const PORT = Number(process.env.PORT);
 
 app.use(express.static("."));
 
@@ -12,19 +12,18 @@ db.connect().catch((err) => {
   console.error("Database unavailable:", err.message);
 });
 
-// Helpful: list which reports exist
+// Lists which reports exist
 app.get("/api/reports", (req, res) => {
   res.json({ ok: true, reports: db.listReports() });
 });
 
-// Optional: single endpoint pattern: /api?report=deliverable2
 app.get("/api", async (req, res) => {
   const report = req.query.report;
 
   if (!report) {
     return res.status(400).json({
       ok: false,
-      error: "Missing query parameter: report. Try /api?report=deliverable2"
+      error: "Missing query parameter: report."
     });
   }
 

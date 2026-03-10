@@ -23,4 +23,4 @@ Start the server from the project root: node server.mjs
 
 ## Open In Browser
 
-Open these URLs in a browser:  `http://localhost:3000/index.html`
+Open these URLs in a browser:  `http://localhost:3000`

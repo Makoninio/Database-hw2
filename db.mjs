@@ -27,30 +27,25 @@ function connect() {
 const REPORT_SQL = {
   deliverable1: `
     SELECT 
-        s.firstname,
-        s.lastname,
-        COUNT(*) AS absences
-    FROM senator s
-    JOIN voted v ON s.id = v.sen_id
-    WHERE v.vote = 'A'
-    GROUP BY s.id, s.firstname, s.lastname;
+        firstname, 
+        lastname, 
+        COUNT(*) as Absences 
+    FROM senator JOIN voted
+    ON senator.id = voted.sen_id
+    WHERE vote = 'A'
+    GROUP By id
   `,
   deliverable2: `
     SELECT 
-        s.firstname,
-        s.lastname,
-        COALESCE(r.absences, 0) AS absences
-    FROM senator s
-    LEFT JOIN (
-        SELECT 
-            s.id,
-            COUNT(*) AS absences
-        FROM senator s
-        JOIN voted v ON s.id = v.sen_id
-        WHERE v.vote = 'A'
-        GROUP BY s.id
-    ) r ON s.id = r.id
-    ORDER BY absences DESC, s.lastname ASC;
+        firstname, 
+        lastname, 
+        COALESCE(Absences, 0) as Absences FROM senator as s
+    NATURAL LEFT OUTER JOIN (
+      SELECT firstname, lastname, COUNT(*) as Absences from senator JOIN voted
+      ON senator.id = voted.sen_id
+      WHERE vote = 'A'
+      GROUP By id
+    ) AS a;
   `,
   deliverable3: `
     SELECT 
@@ -71,46 +66,56 @@ const REPORT_SQL = {
     WHERE x.vote = y.vote;
   `,
   deliverable4: `
-    SELECT 
-        COUNT(*) AS number_of_disagreements
+    SELECT Count(*) as number_of_disagreements
     FROM (
-        SELECT vote, sen_id, congress, session, number
-        FROM voted
-        WHERE sen_id = 'S118'
-    ) x
+        SELECT vote, sen_id, congress, session, number 
+        FROM voted 
+        WHERE voted.sen_id='S118'
+    ) AS x
     JOIN (
-        SELECT vote, sen_id, congress, session, number
-        FROM voted
-        WHERE sen_id = 'S275'
-    ) y
-      ON x.congress = y.congress
-     AND x.session  = y.session
-     AND x.number   = y.number
-    WHERE x.vote <> y.vote;
+        SELECT vote, sen_id, congress, session, number 
+        FROM voted 
+        WHERE voted.sen_id='S275'
+    ) AS y
+      ON x.congress = y.congress 
+      AND x.session = y.session 
+      AND x.number = y.number
+    WHERE x.vote != y.vote;
   `,
   deliverable5: `
-    SELECT 
-        y.sen_id,
-        COUNT(*) AS number_of_disagreements
+    Select 
+        senator y, 
+        's118' as senator x, 
+        COALESCE(number of disagreements, 0) as number of disagreements 
     FROM (
-        SELECT vote, sen_id, congress, session, number
+        SELECT 
+            id as senator_y, 
+            's118' as senator_x 
+        FROM senator
+      ) AS s
+    NATURAL LEFT OUTER JOIN (
+        SELECT 
+            y.sen_id as senator_y, 
+            x.sen_id as senator_x, 
+            Count(*) as number_of_disagreements
+        FROM (
+            SELECT vote, sen_id, congress, session, number 
+            FROM voted where voted.sen_id='S118'
+        ) AS x
+    JOIN (
+        SELECT vote, sen_id, congress, session, number 
         FROM voted
-        WHERE sen_id = 'S118'
-    ) x
-    JOIN voted y
-      ON x.congress = y.congress
-     AND x.session  = y.session
-     AND x.number   = y.number
-    WHERE x.vote <> y.vote
-      AND x.vote <> 'A'
-      AND y.vote <> 'A'
-    GROUP BY y.sen_id
-    ORDER BY y.sen_id;
+    ) AS y
+    ON x.congress = y.congress 
+    AND x.session = y.session 
+    AND x.number = y.number
+    WHERE x.vote != y.vote AND x.vote != 'A' AND y.vote != 'A'
+    group by y.sen_id) as d;
   `,
   deliverable6: `
     SELECT
         *,
-        (agreements - disagreements) / (agreements + disagreements) AS agreement_index
+        COALESCE((agreements - disagreements) / (agreements + disagreements), 0) AS agreement_index
     FROM (
         SELECT
             firstname,
@@ -188,7 +193,8 @@ const REPORT_SQL = {
             GROUP BY y.sen_id
             ORDER BY y.sen_id
         ) AS a
-    ) AS agr;
+    ) AS agr
+     ORDER BY agreement_index DESC;
   `
 };
 
